@@ -29,4 +29,9 @@ export const useSessionStore = create((set) => ({
       userCaptions: "",
     })),
   resetUserCaption: () => set({ userCaptions: "" }),
+
+  emotion: { speaker: null, label: "neutral", valence: 0, arousal: 0.1 },
+  setEmotion: (payload) => set(() => ({ emotion: payload })),
+
 }));
+

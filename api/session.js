@@ -35,14 +35,10 @@ export default async function handler(req) {
       );
     }
 
-    // 중요: 여기서는 json.url을 그대로 쓰지 말고,
-    // 프론트가 고정 패턴의 Realtime 엔드포인트를 만들 수 있게 model만 내려준다.
-    // (에페머럴 토큰은 client_secret.value 사용)
     return new Response(
       JSON.stringify({
         client_secret: json?.client_secret, // { value, expires_at }
-        model, // ← 프론트가 이 값으로 URL 구성
-        // 참고로 json.url을 굳이 내려보내지 않음
+        model,
       }),
       { headers: { "Content-Type": "application/json" } }
     );
