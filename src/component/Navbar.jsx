@@ -33,7 +33,12 @@ export default function StatusAppBar({ setOpenSetting }) {
           </Typography>
         </Box>
 
-        <Button onClick={() => setOpenSetting(true)} variant="text" sx={{ color: "text.secondary"}} startIcon={<SettingsIcon size="small"/>}>
+        <Button
+          onClick={setOpenSetting}
+          variant="text"
+          sx={{ color: "text.secondary" }}
+          startIcon={<SettingsIcon size="small" />}
+        >
           Setting
         </Button>
       </Toolbar>

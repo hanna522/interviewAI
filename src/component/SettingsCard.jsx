@@ -6,46 +6,47 @@ import {
   DialogContent,
   DialogActions,
   TextField,
-  Typography,
   Box,
   IconButton,
   Button,
-  Divider,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
+// Compact template (token-saving)
+const COMPACT_TEMPLATE = `
+You are Interviewer. Speak {{LANG}} only. Focus on {{TOPIC}}.
+Rules: one question per turn; ≤10s spoken; stop instantly if interrupted and invite them to continue; ask for concrete examples, metrics, and trade-offs; keep a neutral-positive, concise tone; no solutions/lectures; wait at least 1200ms of silence after the candidate finishes before responding. If the silence is shorter, do not start speaking.
+Flow: broad question → specific probes (scope, constraints, options, reasoning, metrics, failures/learned) → one-line summary → next area.
+Safety: no sensitive personal data; redirect off-topic to {{TOPIC}}.
+Opening: “Could you walk me through a recent project on {{TOPIC}}—problem, your role, key result?”
+`.trim();
+
+// simple {{KEY}} replacer
+function fillTemplate(tpl, map) {
+  return (tpl || "").replace(
+    /\{\{\s*(LANG|TOPIC)\s*\}\}/g,
+    (_, k) => map[k] ?? ""
+  );
+}
+
 export default function SettingsDialog({
-  open, // boolean: control from parent (openSetting)
-  onClose, // function: close handler
-  setInstructions, // function: callback to update merged prompt
-  error, // optional string
-  defaultGeneral = "You are a professional yet approachable AI interviewer. Keep your responses concise (≤10 seconds when spoken). Ask only one focused question at a time. Pause and allow the candidate time to answer before moving on. Be adaptive: if interrupted, stop speaking immediately.",
-  defaultTopic = "the candidate’s recent projects and problem-solving approaches",
+  open,
+  onClose,
+  setInstructions,
+  onSave, 
+  error,
+  defaultGeneral = COMPACT_TEMPLATE, 
+  defaultTopic = "Recent Project",
   defaultLanguage = "English",
 }) {
-  // Local states mirror the old card fields
   const [general, setGeneral] = useState(defaultGeneral);
   const [topic, setTopic] = useState(defaultTopic);
   const [language, setLanguage] = useState(defaultLanguage);
 
-  // Merge prompt exactly as before
   const combinedPrompt = useMemo(() => {
-    const g = (general || "").trim();
-    const t = (topic || "").trim();
-    const l = (language || "").trim();
-    return [g ? `${g}.` : "", t ? `${t}.` : "", l ? `${l}.` : ""]
-      .filter(Boolean)
-      .join(" ");
+    return fillTemplate(general, { LANG: language, TOPIC: topic }).trim();
   }, [general, topic, language]);
 
-  // Debounce push-updates to parent
-  useEffect(() => {
-    if (!open) return; // Only update while dialog is open
-    const id = setTimeout(() => setInstructions?.(combinedPrompt), 150);
-    return () => clearTimeout(id);
-  }, [combinedPrompt, setInstructions, open]);
-
-  // Reset fields when the dialog opens (optional, keeps defaults fresh)
   useEffect(() => {
     if (open) {
       setGeneral(defaultGeneral);
@@ -55,13 +56,14 @@ export default function SettingsDialog({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
+  const handleSave = () => {
+    onSave?.({ general, topic, language, instructions: combinedPrompt });
+    setInstructions?.(combinedPrompt);
+    onClose?.();
+  };
+
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      fullWidth
-      maxWidth="sm"
-    >
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle sx={{ pr: 6 }}>
         Interviewer Settings
         <IconButton
@@ -76,11 +78,12 @@ export default function SettingsDialog({
 
       <DialogContent dividers>
         <TextField
-          label="General"
+          autoFocus
+          label="System Prompt"
           value={general}
           onChange={(e) => setGeneral(e.target.value)}
           multiline
-          minRows={3}
+          minRows={6}
           fullWidth
           variant="outlined"
           sx={{ mt: 1 }}
@@ -90,8 +93,6 @@ export default function SettingsDialog({
           label="Topic"
           value={topic}
           onChange={(e) => setTopic(e.target.value)}
-          multiline
-          minRows={2}
           fullWidth
           variant="outlined"
           sx={{ mt: 2 }}
@@ -123,16 +124,14 @@ export default function SettingsDialog({
             {error}
           </Box>
         )}
-
-        <Divider sx={{ my: 1.5 }} />
-        <Typography variant="caption" color="text.secondary">
-          Press <kbd>Space</kbd> to interrupt while the model is speaking.
-        </Typography>
       </DialogContent>
 
       <DialogActions>
-        <Button onClick={onClose} variant="contained">
-          Done
+        <Button onClick={onClose} variant="text">
+          Cancel
+        </Button>
+        <Button onClick={handleSave} variant="contained">
+          Save
         </Button>
       </DialogActions>
     </Dialog>

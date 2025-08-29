@@ -38,7 +38,7 @@ export function useRealtime(audioRef) {
     const now = Date.now();
     const slot = lastAnalysisRef.current[speaker];
     if (!text || text.trim().length < MIN_LEN) return;
-    if (slot.text === text && now - slot.t < MIN_INTERVAL_MS) return;운
+    if (slot.text === text && now - slot.t < MIN_INTERVAL_MS) return;
     slot.text = text;
     slot.t = now;
 

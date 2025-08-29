@@ -24,11 +24,30 @@ import AppFooter from "./component/Footer";
 import TopicCard from "./component/TopicCard";
 import TopicDialog from "./component/TopicDialog";
 
+const COMPACT_TEMPLATE = `
+You are Interviewer. Speak {{LANG}} only. Focus on {{TOPIC}}.
+Rules: one question per turn; ≤10s spoken; stop instantly if interrupted and invite them to continue; ask for concrete examples, metrics, and trade-offs; keep a neutral-positive, concise tone; no solutions/lectures; wait at least 1200ms of silence after the candidate finishes before responding. If the silence is shorter, do not start speaking.
+Flow: broad question → specific probes (scope, constraints, options, reasoning, metrics, failures/learned) → one-line summary → next area.
+Safety: no sensitive personal data; redirect off-topic to {{TOPIC}}.
+Opening: “Could you walk me through a recent project on {{TOPIC}}—problem, your role, key result?”
+`
+
+const fill = (tpl, map) =>
+  (tpl || "").replace(/\{\{\s*(LANG|TOPIC)\s*\}\}/g, (_, k) => map[k] ?? "");
+
 export default function App() {
   const audioRef = useRef(null);
+
+  const [topic, setTopic] = useState("Recent Project");
+  const [language, setLanguage] = useState("English");
+  
   const [instructions, setInstructions] = useState(
-    "You are a friendly, curious AI interviewer. Keep turns short (<=10s) and stop speaking if interrupted."
+    fill(COMPACT_TEMPLATE, { LANG: language, TOPIC: topic })
   );
+
+  const [openSetting, setOpenSetting] = useState(false);
+  const [openTopicDialog, setOpenTopicDialog] = useState(false);
+  
   const {
     connect,
     disconnect,
@@ -39,11 +58,12 @@ export default function App() {
     remoteLevel,
   } = useRealtime(audioRef);
 
-  const [openSetting, setOpenSetting] = useState(false);
-const [topic, setTopic] = useState("Recent Project");
-  const [openTopicDialog, setOpenTopicDialog] = useState(false);
-
   const emotion = useSessionStore((s) => s.emotion);
+
+  const openSettings = React.useCallback(() => {
+    if (typeof document !== "undefined") document.activeElement?.blur();
+    setOpenSetting(true);
+  }, []);
 
   const status = isConnecting
     ? "connecting"
@@ -55,7 +75,7 @@ const [topic, setTopic] = useState("Recent Project");
     <ThemeProvider theme={theme}>
       <CssBaseline />
 
-      <StatusAppBar setOpenSetting={setOpenSetting} />
+      <StatusAppBar setOpenSetting={openSettings} />
 
       <Container maxWidth="xl" sx={{ height: "85vh", py: 3, px: 2 }}>
         <Box
@@ -144,9 +164,15 @@ const [topic, setTopic] = useState("Recent Project");
           <SettingsDialog
             open={openSetting}
             onClose={() => setOpenSetting(false)}
-            instructions={instructions}
             setInstructions={setInstructions}
             error={error}
+            defaultTopic={topic}
+            defaultLanguage={language}
+            onSave={({ topic: t, language: l, instructions: inst }) => {
+              setTopic(t);
+              setLanguage(l);
+              setInstructions(inst);
+            }}
           />
           <TopicDialog
             open={openTopicDialog}
