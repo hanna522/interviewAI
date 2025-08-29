@@ -186,7 +186,7 @@ export function useRealtime(audioRef) {
       setIsConnecting(true);
       setError(null);
       try {
-        // 1) 에페머럴 토큰/모델
+        // 1) ephemeral token/model
         const r = await fetch("/api/session", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -221,7 +221,7 @@ export function useRealtime(audioRef) {
         mic.getTracks().forEach((t) => pc.addTrack(t, mic));
         setupMeterFromStream(mic, setLocalLevel);
 
-        // 3) SDP 교환
+        // 3) SDP exchange
         const offer = await pc.createOffer({ offerToReceiveAudio: true });
         await pc.setLocalDescription(offer);
         await waitIce(pc);

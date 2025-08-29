@@ -139,10 +139,10 @@ export default function App() {
                   Pause
                 </Button>
               )}
-              {/* <Box sx={{ mt: 1, display: "grid", gap: 1 }}>
+              <Box sx={{ display: "flex", flexDirection: "column", mt: 1, }}>
                 <LiveCaption />
                 <LiveUserCaption />
-              </Box> */}
+              </Box>
             </CardContent>
           </Card>
 

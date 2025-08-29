@@ -33,7 +33,6 @@ function detectPitchACF(buf, sampleRate) {
   return { pitch, confidence: Math.min(1, bestCorr) };
 }
 
-/** 스펙트럴 센트로이드(밝기) 추정 */
 function spectralCentroid(analyser, sampleRate) {
   const N = analyser.frequencyBinCount;
   const mag = new Float32Array(N);
