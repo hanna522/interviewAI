@@ -1,13 +1,10 @@
 // App.jsx
-import React, { useRef, useState, useMemo } from "react";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
+import React, { useRef, useState } from "react";
+import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
-import AppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
 import Container from "@mui/material/Container";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 
@@ -85,6 +82,7 @@ export default function App() {
             width: "100%",
             height: "100%",
             flexWrap: "wrap",
+            justifyContent: "center",
           }}
         >
           {/* Center: Avatar + Audio */}
@@ -95,9 +93,10 @@ export default function App() {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              width: "100%",
+              maxWidth: "100%",
+              minWidth: "50%",
               flex: 1,
-              height: "100%",
+              maxHeight: "100%",
               background:
                 "linear-gradient(180deg, rgba(124,165,255,0.06), transparent 60%)",
             }}
