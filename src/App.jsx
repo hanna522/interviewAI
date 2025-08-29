@@ -94,6 +94,7 @@ export default function App() {
               alignItems: "center",
               justifyContent: "center",
               maxWidth: "100%",
+              minHeight: "50%",
               minWidth: "50%",
               flex: 1,
               maxHeight: "100%",
